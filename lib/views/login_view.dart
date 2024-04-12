@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../firebase_options.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -30,57 +28,56 @@ class LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-          title: const Text("Login form"), backgroundColor: Colors.green),
-      body: FutureBuilder(
-        future: Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
-        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-          switch (snapshot.connectionState){
-            case ConnectionState.done:
-              return Column(
-                children: [
-                  TextField(
-                    controller: _email,
-                    decoration:
-                    InputDecoration(hintText: "Enter your email address here"),
-                    autocorrect: false,
-                    keyboardType: TextInputType.emailAddress,
-                  ),
-                  TextField(
-                    controller: _password,
-                    decoration: InputDecoration(
-                        hintText: "Enter your strong password here"),
-                    obscureText: true,
-                    enableSuggestions: false,
-                    autocorrect: false,
-                  ),
-                  TextButton(
-                    child: const Text(
-                      "Login",
-                      style: TextStyle(color: Colors.blue, fontSize: 20.0),
-                    ),
-                    onPressed: () async {
-                      try{
-                        final email = _email.text;
-                        final password = _password.text;
-                        final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-                            email: email, password: password);
-                        print(userCredential);
-                      }on FirebaseAuthException catch(e){
-                        print(e.code);
-                      }catch(e){
-                        print("Something bad happened");
-                      }
-
-                    },
-                  ),
-                ],
-              );
-            default: return const Text("Loading...");
-
-          }
-        },
+      appBar: AppBar(title: const Text("Login"),),
+      body: Column(
+        children: [
+          TextField(
+            controller: _email,
+            decoration:
+            const InputDecoration(hintText: "Enter your email address here"),
+            autocorrect: false,
+            keyboardType: TextInputType.emailAddress,
+          ),
+          TextField(
+            controller: _password,
+            decoration: const InputDecoration(
+                hintText: "Enter your strong password here"),
+            obscureText: true,
+            enableSuggestions: false,
+            autocorrect: false,
+          ),
+          TextButton(
+            child: const Text(
+              "Login",
+              style: TextStyle(color: Colors.blue, fontSize: 20.0),
+            ),
+            onPressed: () async {
+              try{
+                final email = _email.text;
+                final password = _password.text;
+                final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+                    email: email, password: password);
+                print(userCredential);
+              }on FirebaseAuthException catch(e){
+                print(e.code);
+              }catch(e){
+                print("Something bad happened");
+              }
+      
+            },
+          ),
+          TextButton(
+            child: const Text(
+              "Not registered yet? Register here",
+              style: TextStyle(color: Colors.blue, fontSize: 20.0),
+            ),
+            onPressed: (){
+              Navigator.of(context).pushNamedAndRemoveUntil("/register/",(route)=>false);
+            },
+          ),
+        ],
       ),
     );
+    ;
   }
 }

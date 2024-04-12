@@ -30,54 +30,63 @@ class _RegisterViewState extends State<RegisterView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-          title: const Text("Register form"), backgroundColor: Colors.green),
-      body: FutureBuilder(
-        future: Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
-        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-          switch (snapshot.connectionState){
-            case ConnectionState.done:
-              return Column(
-                children: [
-                  TextField(
-                    controller: _email,
-                    decoration:
-                    InputDecoration(hintText: "Enter your email address here"),
-                    autocorrect: false,
-                    keyboardType: TextInputType.emailAddress,
-                  ),
-                  TextField(
-                    controller: _password,
-                    decoration: InputDecoration(
-                        hintText: "Enter your strong password here"),
-                    obscureText: true,
-                    enableSuggestions: false,
-                    autocorrect: false,
-                  ),
-                  TextButton(
-                    child: const Text(
-                      "Register",
-                      style: TextStyle(color: Colors.blue, fontSize: 20.0),
-                    ),
-                    onPressed: () async {
-                      try{
-                        final email = _email.text;
-                        final password = _password.text;
-                        final userCredential = await FirebaseAuth.instance
-                            .createUserWithEmailAndPassword(
-                            email: email, password: password);
-                        print(userCredential);
-                      } on FirebaseException catch(e){
-                        print(e.code);
-                      }
-                    },
-                  ),
-                ],
-              );
-            default: return const Text("Loading...");
-
-          }
-        },
+      appBar: AppBar(title: Text("Create account")),
+      body: Column(
+        children: [
+          TextField(
+            controller: _email,
+            decoration:
+            const InputDecoration(hintText: "Enter your email address here"),
+            autocorrect: false,
+            keyboardType: TextInputType.emailAddress,
+          ),
+          TextField(
+            controller: _password,
+            decoration: const InputDecoration(
+                hintText: "Enter your strong password here"),
+            obscureText: true,
+            enableSuggestions: false,
+            autocorrect: false,
+          ),
+          TextButton(
+            child: const Text(
+              "Register",
+              style: TextStyle(color: Colors.blue, fontSize: 20.0),
+            ),
+            onPressed: () async {
+              try{
+                final email = _email.text;
+                final password = _password.text;
+                final userCredential = await FirebaseAuth.instance
+                    .createUserWithEmailAndPassword(
+                    email: email, password: password);
+                print(userCredential);
+              } on FirebaseException catch(e){
+                print(e.code);
+                if(e.code=="weak-password"){
+                  print("Weak password provided");
+                }
+                else if(e.code=="email-already-in-use"){
+                  print("Email already used");
+                }
+                else if(e.code=="invalid-email"){
+                  print("Invalid email address");
+                }else{
+                  print(e.code);
+                }
+              }
+            },
+          ),
+          TextButton(
+            child: const Text(
+              "Already have an account? Login",
+              style: TextStyle(color: Colors.blue, fontSize: 20.0),
+            ),
+            onPressed: (){
+              Navigator.of(context).pushNamedAndRemoveUntil("/login/",(route)=>false);
+            },
+          ),
+        ],
       ),
     );
   }
