@@ -58,6 +58,7 @@ class LoginViewState extends State<LoginView> {
                 final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
                     email: email, password: password);
                 print(userCredential);
+                if(!userCredential.user!.emailVerified) Navigator.of(context).pushNamedAndRemoveUntil("/verify/", (route) => false);
               }on FirebaseAuthException catch(e){
                 print(e.code);
               }catch(e){
