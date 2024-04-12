@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mynotes/constants/routes.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -28,13 +29,15 @@ class LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Login"),),
+      appBar: AppBar(
+        title: const Text("Login"),
+      ),
       body: Column(
         children: [
           TextField(
             controller: _email,
-            decoration:
-            const InputDecoration(hintText: "Enter your email address here"),
+            decoration: const InputDecoration(
+                hintText: "Enter your email address here"),
             autocorrect: false,
             keyboardType: TextInputType.emailAddress,
           ),
@@ -52,19 +55,25 @@ class LoginViewState extends State<LoginView> {
               style: TextStyle(color: Colors.blue, fontSize: 20.0),
             ),
             onPressed: () async {
-              try{
+              try {
                 final email = _email.text;
                 final password = _password.text;
-                final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-                    email: email, password: password);
+                final userCredential = await FirebaseAuth.instance
+                    .signInWithEmailAndPassword(
+                        email: email, password: password);
                 print(userCredential);
-                if(!userCredential.user!.emailVerified) Navigator.of(context).pushNamedAndRemoveUntil("/verify/", (route) => false);
-              }on FirebaseAuthException catch(e){
+                if (!userCredential.user!.emailVerified) {
+                  Navigator.of(context)
+                      .pushNamedAndRemoveUntil(verifyRoute, (route) => false);
+                } else if (userCredential.user!.emailVerified) {
+                  Navigator.of(context)
+                      .pushNamedAndRemoveUntil(notesRoute, (route) => false);
+                }
+              } on FirebaseAuthException catch (e) {
                 print(e.code);
-              }catch(e){
+              } catch (e) {
                 print("Something bad happened");
               }
-      
             },
           ),
           TextButton(
@@ -72,8 +81,9 @@ class LoginViewState extends State<LoginView> {
               "Not registered yet? Register here",
               style: TextStyle(color: Colors.blue, fontSize: 20.0),
             ),
-            onPressed: (){
-              Navigator.of(context).pushNamedAndRemoveUntil("/register/",(route)=>false);
+            onPressed: () {
+              Navigator.of(context)
+                  .pushNamedAndRemoveUntil(registerRoute, (route) => false);
             },
           ),
         ],
