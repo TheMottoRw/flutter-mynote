@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mynotes/constants/routes.dart';
 
+import '../utilities.dart';
+
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
 
@@ -70,8 +72,22 @@ class LoginViewState extends State<LoginView> {
                       .pushNamedAndRemoveUntil(notesRoute, (route) => false);
                 }
               } on FirebaseAuthException catch (e) {
+                String text = "";
+                switch(e.code){
+                  case "user-not-found":
+                    text = "User account does not exist";break;
+                  case "invalid-email":
+                    text = "Invalid email address";break;
+                  case "invalid-credential":
+                    text = "Wrong email or password";break;
+                  default:
+                    text = e.code;
+                }
+                await showErrorDialog(context, text);
                 print(e.code);
               } catch (e) {
+                await showErrorDialog(context, e.toString());
+
                 print("Something bad happened");
               }
             },
@@ -89,6 +105,5 @@ class LoginViewState extends State<LoginView> {
         ],
       ),
     );
-    ;
   }
 }
