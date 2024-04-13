@@ -1,8 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:mynotes/constants/routes.dart';
+import 'dart:developer';
 
-import '../utilities.dart';
+import 'package:flutter/material.dart';
+import 'package:mynotes/constants/routes.dart';
+import 'package:mynotes/services/auth/auth_exceptions.dart';
+import 'package:mynotes/services/auth/auth_service.dart';
+
+import 'package:mynotes/utilities.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -60,35 +63,23 @@ class LoginViewState extends State<LoginView> {
               try {
                 final email = _email.text;
                 final password = _password.text;
-                final userCredential = await FirebaseAuth.instance
-                    .signInWithEmailAndPassword(
-                        email: email, password: password);
+                AuthService.firebase().login(email: email, password: password);
+                final userCredential = AuthService.firebase().currentUser;
                 print(userCredential);
-                if (!userCredential.user!.emailVerified) {
-                  Navigator.of(context)
-                      .pushNamedAndRemoveUntil(verifyRoute, (route) => false);
-                } else if (userCredential.user!.emailVerified) {
+                if(userCredential==null) throw WrongPasswordAuthException();
+                if (userCredential?.isEmailVerified ?? false) {
                   Navigator.of(context)
                       .pushNamedAndRemoveUntil(notesRoute, (route) => false);
+                } else {
+                  Navigator.of(context)
+                      .pushNamedAndRemoveUntil(verifyRoute, (route) => false);
                 }
-              } on FirebaseAuthException catch (e) {
-                String text = "";
-                switch(e.code){
-                  case "user-not-found":
-                    text = "User account does not exist";break;
-                  case "invalid-email":
-                    text = "Invalid email address";break;
-                  case "invalid-credential":
-                    text = "Wrong email or password";break;
-                  default:
-                    text = e.code;
-                }
-                await showErrorDialog(context, text);
-                print(e.code);
-              } catch (e) {
-                await showErrorDialog(context, e.toString());
-
-                print("Something bad happened");
+              } on UserNotFoundAuthException{
+                await showErrorDialog(context, "User not found");
+              } on WrongPasswordAuthException{
+                await showErrorDialog(context, "Wrong  credentials");
+              } on GenericAuthException{
+                await showErrorDialog(context, "Authentication error");
               }
             },
           ),
