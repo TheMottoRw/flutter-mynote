@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mynotes/constants/routes.dart';
 
 import '../firebase_options.dart';
+import '../utilities.dart';
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
 
@@ -55,6 +56,7 @@ class _RegisterViewState extends State<RegisterView> {
               style: TextStyle(color: Colors.blue, fontSize: 20.0),
             ),
             onPressed: () async {
+              String text = "";
               try{
                 final email = _email.text;
                 final password = _password.text;
@@ -62,19 +64,24 @@ class _RegisterViewState extends State<RegisterView> {
                     .createUserWithEmailAndPassword(
                     email: email, password: password);
                 print(userCredential);
+                final user = FirebaseAuth.instance.currentUser;
+                await user?.sendEmailVerification();
+                Navigator.of(context)
+                    .pushNamed(verifyRoute);
               } on FirebaseException catch(e){
                 print(e.code);
                 if(e.code=="weak-password"){
-                  print("Weak password provided");
+                  text = "Weak password provided";
                 }
                 else if(e.code=="email-already-in-use"){
-                  print("Email already used");
+                  text = "Email already used";
                 }
                 else if(e.code=="invalid-email"){
-                  print("Invalid email address");
+                  text = "Invalid email address";
                 }else{
-                  print(e.code);
+                  text = e.code;
                 }
+                await showErrorDialog(context, text);
               }
             },
           ),

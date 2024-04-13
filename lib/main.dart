@@ -46,9 +46,7 @@ class HomePage extends StatelessWidget {
             } else {
               // return const RegisterView();
               return const VerifyEmailView();
-              return const Text("You need to verify your email first");
             }
-            return const Text("Done");
           default:
             return const CircularProgressIndicator();
         }
